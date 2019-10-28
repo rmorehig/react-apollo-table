@@ -1,5 +1,4 @@
-import React, { useState, useEffect } from 'react';
-import Checkbox from '../../Checkbox';
+import React from "react";
 
 const Row = ({ data, columns, handleClick, isItemSelected }) => {
   return (
@@ -9,7 +8,7 @@ const Row = ({ data, columns, handleClick, isItemSelected }) => {
           <input
             className="cursor-pointer ml-1 leading-tight"
             type="checkbox"
-            onClick={(event) => handleClick(event, data.nombre)}
+            onClick={event => handleClick(event, data.nombre)}
             checked={isItemSelected}
           />
         </div>
@@ -17,7 +16,7 @@ const Row = ({ data, columns, handleClick, isItemSelected }) => {
       {columns.map(({ main, field }) => (
         <td
           key={`${field}${data.nombre}`}
-          className={`p-3 px-5 ${main && 'font-semibold'}`}
+          className={`p-3 px-5 ${main && "font-semibold"}`}
         >
           {main ? data[field].toUpperCase() : data[field]}
         </td>

@@ -1,6 +1,6 @@
 import React from "react";
 import { GET_ENTITIES } from "./graphql/queries";
-
+import Table from "./components/Table";
 const columns = [
   {
     name: "Nombre",

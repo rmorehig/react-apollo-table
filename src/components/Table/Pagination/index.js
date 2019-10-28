@@ -16,7 +16,7 @@ const Pagination = ({
             className="cursor-pointer hover:bg-gray-200 bg-white py-1 px-1 mx-2 rounded border"
             onChange={e => {
               onRowsPerPageChange(e);
-              onPageChange("init");
+              onPageChange();
             }}
             value={rowsPerPage}
           >
@@ -26,7 +26,7 @@ const Pagination = ({
           </select>
           <button
             className="bg-gray-100 text-gray-700"
-            onClick={() => activePage !== 1 && onPageChange("previous")}
+            onClick={() => activePage !== 1 && onPageChange(-1)}
           >
             <CheveronLeftIcon />
           </button>
@@ -36,7 +36,7 @@ const Pagination = ({
           </span>
           <button
             className="bg-gray-100 text-gray-700"
-            onClick={() => totalPages > activePage && onPageChange("next")}
+            onClick={() => totalPages > activePage && onPageChange(1)}
           >
             <CheveronRightIcon />
           </button>

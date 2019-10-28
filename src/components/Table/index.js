@@ -1,4 +1,4 @@
-import React, { useReducer, useState } from "react";
+import React, { useState } from "react";
 import { useQuery } from "react-apollo";
 import Pagination from "./Pagination";
 import { FilterIcon } from "../Icons";
@@ -6,25 +6,19 @@ import Row from "./Row";
 
 const Table = ({ columns, query }) => {
   const { loading, error, data } = useQuery(query);
-  const activePageReducer = (activePage, action) => {
-    switch (action) {
-      case "next":
-        return activePage + 1;
-      case "previous":
-        return activePage - 1;
-      case "init":
-        return 1;
-      default:
-        throw new Error("Unexpected action");
-    }
+
+  const [activePage, setActivePage] = useState(1);
+  const handleActivePage = nextPage => {
+    nextPage ? setActivePage(activePage + nextPage) : setActivePage(1);
   };
+
+  const [rowsPerPage, setRowsPerPage] = useState(10);
   const handleRowsPerPageChange = e => {
     setRowsPerPage(e.target.value);
   };
-  const [activePage, dispatchActivePage] = useReducer(activePageReducer, 1);
+
   const [selected, setSelected] = useState([]);
   const numSelected = selected.length;
-  const [rowsPerPage, setRowsPerPage] = useState(10);
   const handleSelectAllClick = event => {
     if (event.target.checked) {
       const allSelected = data.entidades.map(e => e.nombre);
@@ -112,7 +106,7 @@ const Table = ({ columns, query }) => {
         <Pagination
           totalPages={Math.ceil(data.entidades.length / rowsPerPage)}
           activePage={activePage}
-          onPageChange={dispatchActivePage}
+          onPageChange={handleActivePage}
           rowsPerPage={rowsPerPage}
           onRowsPerPageChange={handleRowsPerPageChange}
         />

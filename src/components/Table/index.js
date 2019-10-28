@@ -9,13 +9,15 @@ const Table = ({ columns, query }) => {
 
   const [activePage, setActivePage] = useState(1);
   const handleActivePage = nextPage => {
-    nextPage ? setActivePage(activePage + nextPage) : setActivePage(1);
+    nextPage ? setActivePage(nextPage) : setActivePage(1);
   };
 
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const handleRowsPerPageChange = e => {
     setRowsPerPage(e.target.value);
+    setActivePage(1);
   };
+  const totalPages = data ? Math.ceil(data.entidades.length / rowsPerPage) : 1;
 
   const [selected, setSelected] = useState([]);
   const numSelected = selected.length;
@@ -104,7 +106,7 @@ const Table = ({ columns, query }) => {
           </tbody>
         </table>
         <Pagination
-          totalPages={Math.ceil(data.entidades.length / rowsPerPage)}
+          totalPages={totalPages}
           activePage={activePage}
           onPageChange={handleActivePage}
           rowsPerPage={rowsPerPage}

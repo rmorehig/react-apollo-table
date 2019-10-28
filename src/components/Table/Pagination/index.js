@@ -14,10 +14,7 @@ const Pagination = ({
         <div className="inline-flex">
           <select
             className="cursor-pointer hover:bg-gray-200 bg-white py-1 px-1 mx-2 rounded border"
-            onChange={e => {
-              onRowsPerPageChange(e);
-              onPageChange();
-            }}
+            onChange={onRowsPerPageChange}
             value={rowsPerPage}
           >
             <option value={10}>10</option>
@@ -26,7 +23,7 @@ const Pagination = ({
           </select>
           <button
             className="bg-gray-100 text-gray-700"
-            onClick={() => activePage !== 1 && onPageChange(-1)}
+            onClick={() => activePage !== 1 && onPageChange(activePage - 1)}
           >
             <CheveronLeftIcon />
           </button>
@@ -36,7 +33,9 @@ const Pagination = ({
           </span>
           <button
             className="bg-gray-100 text-gray-700"
-            onClick={() => totalPages > activePage && onPageChange(1)}
+            onClick={() =>
+              totalPages > activePage && onPageChange(activePage + 1)
+            }
           >
             <CheveronRightIcon />
           </button>

@@ -1,26 +1,35 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import React from "react";
+import { GET_ENTITIES } from "./graphql/queries";
 
-function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
-}
+const columns = [
+  {
+    name: "Nombre",
+    field: "nombre",
+    main: true
+  },
+  {
+    name: "Código",
+    field: "codigo",
+    width: 2
+  },
+  {
+    name: "NIF/CIF",
+    field: "dni_cif",
+    type: "multi",
+    filter: "dropdown",
+    width: 3
+  },
+  {
+    name: "Teléfono",
+    field: "telefono_principal",
+    type: "multi",
+    filter: "dropdown",
+    width: 2
+  }
+];
+
+const App = () => {
+  return <Table query={GET_ENTITIES} columns={columns} />;
+};
 
 export default App;

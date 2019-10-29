@@ -1,23 +1,14 @@
 import React, { useState } from "react";
 import { useTable, useFilters, useSortBy, usePagination } from "react-table";
 import matchSorter from "match-sorter";
-import { FilterIcon, CheveronRightIcon, CheveronLeftIcon } from "../Icons";
-
-function DefaultColumnFilter({
-  column: { filterValue, preFilteredRows, setFilter }
-}) {
-  const count = preFilteredRows.length;
-
-  return (
-    <input
-      value={filterValue || ""}
-      onChange={e => {
-        setFilter(e.target.value || undefined);
-      }}
-      placeholder={`Buscar`}
-    />
-  );
-}
+import {
+  FilterIcon,
+  CheveronRightIcon,
+  CheveronLeftIcon,
+  CheveronDownIcon,
+  CheveronUpIcon
+} from "../Icons";
+import DefaultColumnFilter from "./DefaultColumnFilter";
 
 function fuzzyTextFilterFn(rows, id, filterValue) {
   return matchSorter(rows, filterValue, { keys: [row => row.values[id]] });
@@ -76,7 +67,7 @@ const Table = ({ columns, data }) => {
     useSortBy,
     usePagination
   );
-  const [isFiltering, setIsFiltering] = useState(false);
+  const [isFiltering, setIsFiltering] = useState(true);
   return (
     <div className="flex px-5 py-5 justify-center">
       <div className="w-full text-sm bg-white shadow-md rounded">
@@ -89,15 +80,20 @@ const Table = ({ columns, data }) => {
               >
                 {headerGroup.headers.map(column => (
                   <th {...column.getHeaderProps()}>
-                    <div className="px-5 py-3">
-                      <span {...column.getSortByToggleProps()}>
-                        {column.render("Header")}
-                        {column.isSorted
-                          ? column.isSortedDesc
-                            ? " 🔽"
-                            : " 🔼"
-                          : ""}
-                      </span>
+                    <div
+                      {...column.getSortByToggleProps()}
+                      className="flex justify-start px-5 py-3"
+                    >
+                      <span>{column.render("Header")}</span>
+                      {column.isSorted ? (
+                        column.isSortedDesc ? (
+                          <CheveronDownIcon />
+                        ) : (
+                          <CheveronUpIcon />
+                        )
+                      ) : (
+                        ""
+                      )}
                     </div>
                     {isFiltering && (
                       <div>
@@ -106,14 +102,6 @@ const Table = ({ columns, data }) => {
                     )}
                   </th>
                 ))}
-                <th>
-                  <div
-                    className="cursor-pointer"
-                    onClick={() => setIsFiltering(!isFiltering)}
-                  >
-                    <FilterIcon />
-                  </div>
-                </th>
               </tr>
             ))}
           </thead>
@@ -147,7 +135,7 @@ const Table = ({ columns, data }) => {
                   setPageSize(Number(e.target.value));
                 }}
               >
-                {[10, 20, 30, 40, 50].map(pageSize => (
+                {[10, 25, 50].map(pageSize => (
                   <option key={pageSize} value={pageSize}>
                     {pageSize}
                   </option>

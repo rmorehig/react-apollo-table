@@ -9,17 +9,28 @@ const Table = ({ columns, query }) => {
   const [activePage, setActivePage] = useState(1);
 
   const sortingReducer = (state, action) => {
-    switch (action.type) {
+    const { type, column } = action;
+    switch (type) {
       case "SORT_DESC":
-        return "desc";
+        return {
+          type: "desc",
+          column
+        };
       case "SORT_ASC":
-        return "asc";
+        return {
+          type: "asc",
+          column
+        };
       default:
         return state;
     }
   };
-  const initialSorting = "asc";
-  const [sorting, dispatch] = useReducer(sortingReducer, initialSorting);
+
+  const initialSorting = {
+    type: "",
+    column: ""
+  };
+  const [sorting, dispatchSorting] = useReducer(sortingReducer, initialSorting);
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [selected, setSelected] = useState([]);
 
@@ -27,13 +38,15 @@ const Table = ({ columns, query }) => {
     nextPage ? setActivePage(nextPage) : setActivePage(1);
   };
 
-  const handleSorting = event => {
-    sorting === "asc"
-      ? dispatch({
-          type: "SORT_DESC"
+  const handleSorting = column => {
+    sorting.type === "asc" && sorting.column === column
+      ? dispatchSorting({
+          type: "SORT_DESC",
+          column
         })
-      : dispatch({
-          type: "SORT_ASC"
+      : dispatchSorting({
+          type: "SORT_ASC",
+          column
         });
   };
 
@@ -94,12 +107,15 @@ const Table = ({ columns, query }) => {
               </td>
               {columns.map(({ name }) => (
                 <td className="px-5" key={name}>
-                  <div className="flex justify-between items-center">
+                  <div className="flex justify-start items-center">
                     <input
                       className="bg-gray-100 focus:bg-white"
                       value={name}
                     />
-                    <div className="cursor-pointer hover:bg-gray-200 px-1 py-4">
+                    <div
+                      className="cursor-pointer hover:bg-gray-200 px-1 py-4"
+                      onClick={() => handleSorting(name)}
+                    >
                       <FilterIcon />
                     </div>
                   </div>

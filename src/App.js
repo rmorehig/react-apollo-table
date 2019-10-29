@@ -35,9 +35,9 @@ const columns = [
   },
   {
     Header: "NIF/CIF",
-    accessor: "dni_cif",
-    Filter: SelectColumnFilter,
-    filter: "includes"
+    accessor: "dni_cif"
+    //Filter: SelectColumnFilter,
+    //filter: "includes"
   },
   {
     Header: "Teléfono",

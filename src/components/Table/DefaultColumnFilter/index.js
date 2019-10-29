@@ -1,7 +1,7 @@
 import React from "react";
 
 function DefaultColumnFilter({
-  column: { filterValue, preFilteredRows, setFilter }
+  column: { filterValue, preFilteredRows, setFilter, Header }
 }) {
   const count = preFilteredRows.length;
 
@@ -11,7 +11,7 @@ function DefaultColumnFilter({
       onChange={e => {
         setFilter(e.target.value || undefined);
       }}
-      placeholder={`Buscar`}
+      placeholder={`Buscar ${Header.toLowerCase()}`}
     />
   );
 }

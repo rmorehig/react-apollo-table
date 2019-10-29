@@ -1,5 +1,11 @@
 import React, { useState } from "react";
-import { useTable, useFilters, useSortBy, usePagination } from "react-table";
+import {
+  useTable,
+  useFilters,
+  useSortBy,
+  usePagination,
+  useRowSelect
+} from "react-table";
 import matchSorter from "match-sorter";
 import {
   FilterIcon,
@@ -49,13 +55,10 @@ const Table = ({ columns, data }) => {
     prepareRow,
     canPreviousPage,
     canNextPage,
-    pageOptions,
-    pageCount,
-    gotoPage,
     nextPage,
     previousPage,
     setPageSize,
-    state: { pageIndex, pageSize, groupBy, expanded, filters, selectedRowPaths }
+    state: { pageIndex, pageSize, selectedRowPaths }
   } = useTable(
     {
       columns,
@@ -65,13 +68,14 @@ const Table = ({ columns, data }) => {
     },
     useFilters,
     useSortBy,
-    usePagination
+    usePagination,
+    useRowSelect
   );
   const [isFiltering, setIsFiltering] = useState(true);
   return (
     <div className="flex px-5 py-5 justify-center">
-      <div className="w-full text-sm bg-white shadow-md rounded">
-        <table {...getTableProps()} className="w-full text-xs text-gray-800 ">
+      <div className="w-full text-sm bg-white shadow-md rounded-lg">
+        <table {...getTableProps()} className="w-full text-xs text-gray-800">
           <thead>
             {headerGroups.map(headerGroup => (
               <tr
@@ -82,7 +86,8 @@ const Table = ({ columns, data }) => {
                   <th {...column.getHeaderProps()}>
                     <div
                       {...column.getSortByToggleProps()}
-                      className="flex justify-start px-5 py-3"
+                      className="flex justify-start px-5 py-1"
+                      title={`Ordenar`}
                     >
                       <span>{column.render("Header")}</span>
                       {column.isSorted ? (
@@ -96,7 +101,7 @@ const Table = ({ columns, data }) => {
                       )}
                     </div>
                     {isFiltering && (
-                      <div>
+                      <div className="flex justify-start px-5 py-1">
                         {column.canFilter ? column.render("Filter") : null}
                       </div>
                     )}

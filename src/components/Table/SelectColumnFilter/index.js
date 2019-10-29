@@ -1,7 +1,7 @@
 import React from "react";
 
 function SelectColumnFilter({
-  column: { filterValue, setFilter, preFilteredRows, id }
+  column: { filterValue, setFilter, preFilteredRows, id, Header }
 }) {
   const options = React.useMemo(() => {
     const options = new Set();
@@ -13,12 +13,13 @@ function SelectColumnFilter({
 
   return (
     <select
+      className="text-gray-600"
       value={filterValue}
       onChange={e => {
         setFilter(e.target.value || undefined);
       }}
     >
-      <option value="">All</option>
+      <option value="">{Header}</option>
       {options.map((option, i) => (
         <option key={i} value={option}>
           {option}

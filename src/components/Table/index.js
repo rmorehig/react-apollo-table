@@ -4,7 +4,8 @@ import {
   useFilters,
   useSortBy,
   usePagination,
-  useRowSelect
+  useRowSelect,
+  useResizeColumns
 } from "react-table";
 import matchSorter from "match-sorter";
 import {
@@ -42,7 +43,10 @@ const Table = ({ columns, data }) => {
 
   const defaultColumn = React.useMemo(
     () => ({
-      Filter: DefaultColumnFilter
+      Filter: DefaultColumnFilter,
+      minWidth: 20,
+      width: 150,
+      maxWidth: 500
     }),
     []
   );
@@ -71,10 +75,22 @@ const Table = ({ columns, data }) => {
     usePagination,
     useRowSelect
   );
-  const [isFiltering, setIsFiltering] = useState(true);
+  const [isFiltering, setIsFiltering] = useState(false);
   return (
     <div className="flex px-5 py-5 justify-center">
       <div className="w-full text-sm bg-white shadow-md rounded-lg">
+        <div className="flex justify-between">
+          <h1>Entidades</h1>
+          <div className="flex justify-center">
+            <button
+              onClick={() => setIsFiltering(!isFiltering)}
+              className="cursor-pointer hover:bg-gray-200 bg-white py-1 px-1 mx-2 rounded border"
+            >
+              <FilterIcon />
+            </button>
+            <button onClick={() => setIsFiltering(!isFiltering)}>...</button>
+          </div>
+        </div>
         <table {...getTableProps()} className="w-full text-xs text-gray-800">
           <thead>
             {headerGroups.map(headerGroup => (

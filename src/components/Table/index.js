@@ -14,7 +14,7 @@ const Table = ({ columns, query }) => {
 
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const handleRowsPerPageChange = e => {
-    setRowsPerPage(e.target.value);
+    setRowsPerPage(parseInt(e.target.value, 10));
     setActivePage(1);
   };
   const totalPages = data ? Math.ceil(data.entidades.length / rowsPerPage) : 1;

@@ -2,7 +2,7 @@ import gql from "graphql-tag";
 
 export const GET_ENTITIES = gql`
   query {
-    entidades(order_by: { nombre: asc }) {
+    entidades {
       id_entidad
       dni_cif
       codigo

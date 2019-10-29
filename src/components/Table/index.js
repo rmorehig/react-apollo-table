@@ -1,155 +1,179 @@
-import React, { useState, useReducer } from "react";
-import { useQuery } from "react-apollo";
-import Pagination from "./Pagination";
-import { FilterIcon } from "../Icons";
-import Row from "./Row";
+import React, { useState } from "react";
+import { useTable, useFilters, useSortBy, usePagination } from "react-table";
+import matchSorter from "match-sorter";
+import { FilterIcon, CheveronRightIcon, CheveronLeftIcon } from "../Icons";
 
-const Table = ({ columns, query }) => {
-  const { loading, error, data } = useQuery(query);
-  const [activePage, setActivePage] = useState(1);
+function DefaultColumnFilter({
+  column: { filterValue, preFilteredRows, setFilter }
+}) {
+  const count = preFilteredRows.length;
 
-  const sortingReducer = (state, action) => {
-    const { type, column } = action;
-    switch (type) {
-      case "SORT_DESC":
-        return {
-          type: "desc",
-          column
-        };
-      case "SORT_ASC":
-        return {
-          type: "asc",
-          column
-        };
-      default:
-        return state;
-    }
-  };
+  return (
+    <input
+      value={filterValue || ""}
+      onChange={e => {
+        setFilter(e.target.value || undefined);
+      }}
+      placeholder={`Buscar`}
+    />
+  );
+}
 
-  const initialSorting = {
-    type: "",
-    column: ""
-  };
-  const [sorting, dispatchSorting] = useReducer(sortingReducer, initialSorting);
-  const [rowsPerPage, setRowsPerPage] = useState(10);
-  const [selected, setSelected] = useState([]);
+function fuzzyTextFilterFn(rows, id, filterValue) {
+  return matchSorter(rows, filterValue, { keys: [row => row.values[id]] });
+}
 
-  const handleActivePage = nextPage => {
-    nextPage ? setActivePage(nextPage) : setActivePage(1);
-  };
+fuzzyTextFilterFn.autoRemove = val => !val;
 
-  const handleSorting = column => {
-    sorting.type === "asc" && sorting.column === column
-      ? dispatchSorting({
-          type: "SORT_DESC",
-          column
-        })
-      : dispatchSorting({
-          type: "SORT_ASC",
-          column
+const Table = ({ columns, data }) => {
+  const filterTypes = React.useMemo(
+    () => ({
+      fuzzyText: fuzzyTextFilterFn,
+      text: (rows, id, filterValue) => {
+        return rows.filter(row => {
+          const rowValue = row.values[id];
+          return rowValue !== undefined
+            ? String(rowValue)
+                .toLowerCase()
+                .startsWith(String(filterValue).toLowerCase())
+            : true;
         });
-  };
+      }
+    }),
+    []
+  );
 
-  const handleRowsPerPageChange = e => {
-    setRowsPerPage(parseInt(e.target.value, 10));
-    setActivePage(1);
-  };
+  const defaultColumn = React.useMemo(
+    () => ({
+      Filter: DefaultColumnFilter
+    }),
+    []
+  );
 
-  const totalPages = data ? Math.ceil(data.entidades.length / rowsPerPage) : 1;
-
-  const numSelected = selected.length;
-  const handleSelectAllClick = event => {
-    if (event.target.checked) {
-      const allSelected = data.entidades.map(e => e.nombre);
-      setSelected(allSelected);
-      return;
-    }
-    setSelected([]);
-  };
-
-  const handleClick = (event, name) => {
-    const selectedIndex = selected.indexOf(name);
-    let newSelected = [];
-    if (selectedIndex === -1) {
-      newSelected = newSelected.concat(selected, name);
-    } else if (selectedIndex === 0) {
-      newSelected = newSelected.concat(selected.slice(1));
-    } else if (selectedIndex === selected.length - 1) {
-      newSelected = newSelected.concat(selected.slice(0, -1));
-    } else if (selectedIndex > 0) {
-      newSelected = newSelected.concat(
-        selected.slice(0, selectedIndex),
-        selected.slice(selectedIndex + 1)
-      );
-    }
-    setSelected(newSelected);
-  };
-
-  const isSelected = name => selected.indexOf(name) !== -1;
-
-  if (loading) return "Loading...";
-  if (error) return `Error! ${error.message}`;
+  const {
+    getTableProps,
+    getTableBodyProps,
+    headerGroups,
+    page,
+    prepareRow,
+    canPreviousPage,
+    canNextPage,
+    pageOptions,
+    pageCount,
+    gotoPage,
+    nextPage,
+    previousPage,
+    setPageSize,
+    state: { pageIndex, pageSize, groupBy, expanded, filters, selectedRowPaths }
+  } = useTable(
+    {
+      columns,
+      data,
+      defaultColumn,
+      filterTypes
+    },
+    useFilters,
+    useSortBy,
+    usePagination
+  );
+  const [isFiltering, setIsFiltering] = useState(false);
   return (
     <div className="flex px-5 py-5 justify-center">
       <div className="w-full text-sm bg-white shadow-md rounded">
-        <table className="w-full text-xs text-gray-800 ">
+        <table {...getTableProps()} className="w-full text-xs text-gray-800 ">
           <thead>
-            <tr className="border-b bg-gray-100 text-gray-600 font-semibold">
-              <td>
-                <div className="flex justify-center items-center ">
-                  <input
-                    className="cursor-pointer ml-1 leading-tight"
-                    type="checkbox"
-                    onClick={e => handleSelectAllClick(e)}
-                    checked={numSelected === data.entidades.length}
-                  />
-                </div>
-              </td>
-              {columns.map(({ name }) => (
-                <td className="px-5" key={name}>
-                  <div className="flex justify-start items-center">
-                    <input
-                      className="bg-gray-100 focus:bg-white"
-                      value={name}
-                    />
-                    <div
-                      className="cursor-pointer hover:bg-gray-200 px-1 py-4"
-                      onClick={() => handleSorting(name)}
-                    >
-                      <FilterIcon />
+            {headerGroups.map(headerGroup => (
+              <tr
+                {...headerGroup.getHeaderGroupProps()}
+                className="border-b bg-gray-100 text-gray-600 font-semibold text-sm"
+              >
+                {headerGroup.headers.map(column => (
+                  <th {...column.getHeaderProps()}>
+                    <div className="px-5 py-3">
+                      <span {...column.getSortByToggleProps()}>
+                        {column.render("Header")}
+                        {column.isSorted
+                          ? column.isSortedDesc
+                            ? " 🔽"
+                            : " 🔼"
+                          : ""}
+                      </span>
                     </div>
+                    {isFiltering && (
+                      <div>
+                        {column.canFilter ? column.render("Filter") : null}
+                      </div>
+                    )}
+                  </th>
+                ))}
+                <th>
+                  <div
+                    className="cursor-pointer"
+                    onClick={() => setIsFiltering(!isFiltering)}
+                  >
+                    <FilterIcon />
                   </div>
-                </td>
-              ))}
-            </tr>
+                </th>
+              </tr>
+            ))}
           </thead>
-          <tbody>
-            {data.entidades
-              .slice(
-                (activePage - 1) * rowsPerPage,
-                (activePage - 1) * rowsPerPage + rowsPerPage
-              )
-              .map(e => {
-                const isItemSelected = isSelected(e.nombre);
-                return (
-                  <Row
-                    key={e.nombre}
-                    data={e}
-                    columns={columns}
-                    handleClick={handleClick}
-                    isItemSelected={isItemSelected}
-                  />
-                );
-              })}
+          <tbody {...getTableBodyProps()}>
+            {page.map(
+              (row, i) =>
+                prepareRow(row) || (
+                  <tr
+                    {...row.getRowProps()}
+                    className="border-b hover:bg-gray-200"
+                  >
+                    {row.cells.map(cell => {
+                      return (
+                        <td {...cell.getCellProps()} className="py-1 px-5">
+                          {cell.render("Cell")}
+                        </td>
+                      );
+                    })}
+                  </tr>
+                )
+            )}
           </tbody>
         </table>
-        <Pagination
-          totalPages={totalPages}
-          activePage={activePage}
-          onPageChange={handleActivePage}
-          rowsPerPage={rowsPerPage}
-          onRowsPerPageChange={handleRowsPerPageChange}
-        />
+        <div className="w-full bg-gray-100 text-gray-600 font-semibold">
+          <div className="flex justify-end px-2 list-none rounded py-2 right-0">
+            <div className="inline-flex">
+              <select
+                className="cursor-pointer hover:bg-gray-200 bg-white py-1 px-1 mx-2 rounded border"
+                value={pageSize}
+                onChange={e => {
+                  setPageSize(Number(e.target.value));
+                }}
+              >
+                {[10, 20, 30, 40, 50].map(pageSize => (
+                  <option key={pageSize} value={pageSize}>
+                    {pageSize}
+                  </option>
+                ))}
+              </select>
+              <button
+                className="bg-gray-100 text-gray-700"
+                onClick={() => previousPage()}
+                disabled={!canPreviousPage}
+              >
+                <CheveronLeftIcon />
+              </button>
+
+              <span className="cursor-default bg-white py-1 px-3 mx-2 rounded-full border">
+                {pageIndex + 1}
+              </span>
+              <button
+                className="bg-gray-100 text-gray-700"
+                onClick={() => nextPage()}
+                disabled={!canNextPage}
+              >
+                <CheveronRightIcon />
+              </button>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   );

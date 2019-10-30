@@ -79,16 +79,23 @@ const Table = ({ columns, data }) => {
   return (
     <div className="flex px-5 py-5 justify-center">
       <div className="w-full text-sm bg-white shadow-md rounded-lg">
-        <div className="flex justify-between">
-          <h1>Entidades</h1>
+        <div className="flex justify-between py-2 bg-gray-100">
+          <span className=" bg-gray-100 text-gray-600 font-semibold text-sm">
+            Entidades
+          </span>
           <div className="flex justify-center">
             <button
               onClick={() => setIsFiltering(!isFiltering)}
-              className="cursor-pointer hover:bg-gray-200 bg-white py-1 px-1 mx-2 rounded border"
+              className="cursor-pointer hover:bg-gray-200 bg-white px-4 mx-2 rounded border"
             >
               <FilterIcon />
             </button>
-            <button onClick={() => setIsFiltering(!isFiltering)}>...</button>
+            <button
+              onClick={() => setIsFiltering(!isFiltering)}
+              className="cursor-pointer hover:bg-gray-200 bg-white  px-4 mx-2 rounded border"
+            >
+              ...
+            </button>
           </div>
         </div>
         <table {...getTableProps()} className="w-full text-xs text-gray-800">
